@@ -1,12 +1,317 @@
-/* Views switching fix */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: #f4f6f8;
+  color: #1a1a1a;
+  overflow: hidden;
+}
+
+/* मुख्य ॲप रचना */
+#app-main {
+  width: 100%;
+  height: calc(100vh - 65px);
+  overflow: hidden;
+  position: relative;
+}
+
+/* जे पान ॲक्टिव्ह नाही ते १००% बंद */
 .view {
   display: none !important;
 }
 
+/* जे पान ॲक्टिव्ह आहे ते पूर्ण स्क्रीन व्यापेल आणि खाली स्क्रोल होईल */
 .view.active {
   display: flex !important;
   flex-direction: column !important;
-  height: 100% !important;
+  width: 100%;
+  height: 100%;
   overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 30px;
 }
 
+/* प्रत्येक पानाचा हेडर */
+.view-header {
+  background: #16324F;
+  color: #ffffff;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.today-datebar {
+  font-size: 0.9rem;
+  color: #d1d5db;
+  margin-bottom: 12px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #1a1a1a;
+  outline: none;
+}
+
+/* Today टॅब्स */
+.today-tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.today-tab {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #ffffff;
+  padding: 8px 6px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.today-tab.active {
+  background: #ffffff;
+  color: #16324F;
+  font-weight: bold;
+}
+
+/* पानावरील मजकूर विभाग */
+.view-content {
+  padding: 16px;
+  flex: 1;
+}
+
+/* टास्क कार्ड डिझाइन */
+.task-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+  border-left: 5px solid #16324F;
+}
+
+.task-card.priority-high { border-left-color: #e53e3e; }
+.task-card.priority-medium { border-left-color: #dd6b20; }
+.task-card.priority-low { border-left-color: #3182ce; }
+
+.task-card.is-done {
+  opacity: 0.6;
+}
+
+.task-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #a0aec0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.task-check.checked {
+  background: #38a169;
+  border-color: #38a169;
+  color: #ffffff;
+}
+
+.task-body {
+  flex: 1;
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.task-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.cat-chip {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #edf2f7;
+  color: #4a5568;
+}
+
+.task-desc {
+  font-size: 0.9rem;
+  color: #4a5568;
+  margin-top: 6px;
+  white-space: pre-wrap;
+}
+
+.task-meta {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+/* Settings कार्ड्स व बटणे */
+.settings-group {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+}
+
+.settings-group h3 {
+  margin-bottom: 12px;
+  font-size: 1.05rem;
+  color: #16324F;
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 6px;
+}
+
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.btn-primary { background: #16324F; color: #ffffff; }
+.btn-secondary { background: #e2e8f0; color: #2d3748; }
+
+/* फ्लोटिंग ॲड बटण (+) */
+.fab {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #16324F;
+  color: #ffffff;
+  border: none;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 100;
+  cursor: pointer;
+}
+
+/* खालचा बार */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background: #ffffff;
+  display: flex;
+  border-top: 1px solid #e2e8f0;
+  z-index: 100;
+}
+
+.bottom-nav button {
+  flex: 1;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #718096;
+  cursor: pointer;
+}
+
+.bottom-nav button.active {
+  color: #16324F;
+  font-weight: bold;
+}
+
+.nav-icon {
+  font-size: 1.3rem;
+  margin-bottom: 2px;
+}
+
+/* मोडल (पॉपअप) */
+.modal-root.open {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 200;
+}
+
+.modal-sheet {
+  background: #ffffff;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  color: #4a5568;
+  margin-bottom: 4px;
+}
+
+.field input, .field textarea, .field select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
