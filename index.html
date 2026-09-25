@@ -1,80 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#16324F">
-<meta name="description" content="Plan. Remember. Complete. Your day planner, todo list, reminders and alarms in one app.">
 <title>Navin Day Planner</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header class="app-header">
-  <div class="brand">
-    <span class="brand-mark">NDP</span>
-    <div class="brand-text">
-      <span class="brand-name">Navin Day Planner</span>
-      <span class="brand-tag">Plan. Remember. Complete.</span>
-    </div>
-  </div>
-  <div class="header-search">
-    <input type="search" id="global-search" placeholder="Search tasks, notes, tags…" aria-label="Search">
-  </div>
-</header>
-
+<!-- मुख्य कंटेनर जिथे प्रत्येक टॅब पूर्ण पान व्यापेल -->
 <main id="app-main">
 
+  <!-- १. TODAY व्ह्यू: फक्त Today निवडल्यावरच हे सर्व दिसेल -->
   <section id="today-view" class="view active">
-    <div class="today-datebar">
-      <span id="today-date">—</span>
-      <span class="today-datebar-sep">•</span>
-      <span id="current-time">—</span>
+    <div class="view-header">
+      <div class="brand-title">Navin Day Planner</div>
+      <div class="today-datebar">
+        <span id="today-date">—</span> • <span id="current-time">—</span>
+      </div>
+      <div class="search-box">
+        <input type="search" id="global-search" placeholder="Search tasks, notes...">
+      </div>
+      <div class="today-tabs">
+        <button class="today-tab active" data-tab="schedule">Schedule (<span id="tabcount-schedule">0</span>)</button>
+        <button class="today-tab" data-tab="important">Important (<span id="tabcount-important">0</span>)</button>
+        <button class="today-tab" data-tab="pending">Carry Fwd (<span id="tabcount-pending">0</span>)</button>
+        <button class="today-tab" data-tab="completed">Done (<span id="tabcount-completed">0</span>)</button>
+      </div>
     </div>
-
-    <div class="today-tabs">
-      <button class="today-tab active" data-tab="schedule">
-        <span class="tab-icon">📋</span>
-        <span class="tab-label">Schedule</span>
-        <span class="tab-count" id="tabcount-schedule">0</span>
-      </button>
-      <button class="today-tab" data-tab="important">
-        <span class="tab-icon">⭐</span>
-        <span class="tab-label">Important</span>
-        <span class="tab-count" id="tabcount-important">0</span>
-      </button>
-      <button class="today-tab" data-tab="pending">
-        <span class="tab-icon">🔄</span>
-        <span class="tab-label">Carry Fwd</span>
-        <span class="tab-count" id="tabcount-pending">0</span>
-      </button>
-      <button class="today-tab" data-tab="completed">
-        <span class="tab-icon">✅</span>
-        <span class="tab-label">Done</span>
-        <span class="tab-count" id="tabcount-completed">0</span>
-      </button>
-    </div>
-
-    <div class="today-tab-panel panel-dark" id="today-tab-panel">
-      <div class="tile-grid" id="today-tile-grid"></div>
+    <div class="view-content">
+      <div id="today-tile-grid"></div>
     </div>
   </section>
 
-  <section id="calendar-view" class="view"></section>
+  <!-- २. CALENDAR व्ह्यू -->
+  <section id="calendar-view" class="view">
+    <div class="view-header">
+      <h2>Calendar</h2>
+    </div>
+    <div class="view-content" id="calendar-content"></div>
+  </section>
 
-  <section id="tasks-view" class="view"></section>
+  <!-- ३. TASKS व्ह्यू -->
+  <section id="tasks-view" class="view">
+    <div class="view-header">
+      <h2>All Tasks</h2>
+    </div>
+    <div class="view-content" id="tasks-content"></div>
+  </section>
 
-  <section id="completed-view" class="view"></section>
+  <!-- ४. COMPLETED व्ह्यू -->
+  <section id="completed-view" class="view">
+    <div class="view-header">
+      <h2>Completed Tasks</h2>
+    </div>
+    <div class="view-content" id="completed-content"></div>
+  </section>
 
-  <section id="settings-view" class="view"></section>
+  <!-- ५. SETTINGS व्ह्यू: वरचे सर्व गायब होऊन फक्त हे पूर्ण पानभर दिसेल -->
+  <section id="settings-view" class="view">
+    <div class="view-header">
+      <h2>Settings & Backup</h2>
+    </div>
+    <div class="view-content" id="settings-content"></div>
+  </section>
 
 </main>
 
+<!-- फ्लोटिंग ॲड बटण (+) -->
 <button id="fab-add" class="fab" aria-label="Add task">+</button>
 
+<!-- खालचा नॅव्हिगेशन बार -->
 <nav class="bottom-nav">
   <button data-tab="today" class="active"><span class="nav-icon">🏠</span><span>Today</span></button>
   <button data-tab="calendar"><span class="nav-icon">📅</span><span>Calendar</span></button>
@@ -84,7 +82,6 @@
 </nav>
 
 <div id="modal-root" class="modal-root"></div>
-<div id="alarm-ring-root" class="alarm-ring-root"></div>
 <div id="toast-root" class="toast-root"></div>
 
 <script src="config.js"></script>
