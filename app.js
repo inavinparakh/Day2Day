@@ -86,13 +86,28 @@ const App = {
       b.classList.toggle('active', b.dataset.tab === viewName);
     });
 
-    // Update view visibility
+    // सर्व views लपवा
     document.querySelectorAll('.view').forEach(v => {
       v.classList.remove('active');
+      v.style.display = 'none';
     });
 
+    // फक्त निवडलेला view दाखवा
     const activeView = document.getElementById(`${viewName}-view`);
-    if (activeView) activeView.classList.add('active');
+    if (activeView) {
+      activeView.classList.add('active');
+      activeView.style.display = 'block';
+    }
+
+    // Settings किंवा इतर पेजवर असताना Search आणि FAB (+) बटण लपवा
+    const fab = document.getElementById('fab-add');
+    const searchBar = document.querySelector('.header-search');
+    if (fab) {
+      fab.style.display = (viewName === 'settings') ? 'none' : 'flex';
+    }
+    if (searchBar) {
+      searchBar.style.display = (viewName === 'settings') ? 'none' : 'block';
+    }
 
     this.refreshCurrentView();
   },
@@ -236,4 +251,3 @@ const App = {
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
 });
-    
