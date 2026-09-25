@@ -1,48 +1,42 @@
-// Navin Day Planner — Application Bootstrap & View Controller
+// Navin Day Planner — View Switching & Control
 
 const App = {
   currentTab: 'today',
-  todayFilter: 'schedule', // 'schedule', 'important', 'pending', 'completed'
+  todayFilter: 'schedule',
 
   async init() {
     await DB.init();
     await Tasks.runCarryForward();
 
-    // Register Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js').catch(() => {});
     }
 
-    // Bind Global UI Elements
     this.bindEvents();
     this.startLiveClock();
 
-    // Set initial date display
     const dateEl = document.getElementById('today-date');
     if (dateEl) {
       dateEl.textContent = Utils.formatDateDisplay(Utils.todayDateStr());
     }
 
-    // Notification and Alarms check interval
     setInterval(() => {
       Notifications.checkReminders();
       Alarms.checkAlarms();
     }, 15000);
 
-    // Initial View Load
     this.switchView('today');
   },
 
   bindEvents() {
-    // Bottom Nav Tabs
+    // तळभागातील बटणे (Bottom Navigation)
     document.querySelectorAll('.bottom-nav button').forEach(btn => {
       btn.addEventListener('click', () => {
-        const tab = btn.dataset.tab;
-        this.switchView(tab);
+        this.switchView(btn.dataset.tab);
       });
     });
 
-    // Today Sub-tabs
+    // Today वरील ४ बटणे (Schedule, Important, Carry Fwd, Done)
     document.querySelectorAll('.today-tab').forEach(tabBtn => {
       tabBtn.addEventListener('click', () => {
         document.querySelectorAll('.today-tab').forEach(b => b.classList.remove('active'));
@@ -52,15 +46,13 @@ const App = {
       });
     });
 
-    // Floating Action Button (+)
+    // Floating Button (+)
     const fab = document.getElementById('fab-add');
     if (fab) {
-      fab.addEventListener('click', () => {
-        UI.showTaskModal();
-      });
+      fab.addEventListener('click', () => UI.showTaskModal());
     }
 
-    // Global Search
+    // शोधपट्टी (Search)
     const searchInput = document.getElementById('global-search');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
@@ -78,35 +70,30 @@ const App = {
     setInterval(updateTime, 1000);
   },
 
+  // मुख्य स्विचिंग लॉजिक — एका वेळी फक्त १ च पान पूर्ण स्क्रीनवर दिसेल
   switchView(viewName) {
     this.currentTab = viewName;
 
-    // Update bottom nav active state
+    // खालच्या बारवर ॲक्टिव्ह हायलाइट करा
     document.querySelectorAll('.bottom-nav button').forEach(b => {
       b.classList.toggle('active', b.dataset.tab === viewName);
     });
 
-    // सर्व views लपवा
+    // सर्व पाहाणे लपवा
     document.querySelectorAll('.view').forEach(v => {
       v.classList.remove('active');
-      v.style.display = 'none';
     });
 
-    // फक्त निवडलेला view दाखवा
+    // निवडलेले पान पूर्णपणे उघडा
     const activeView = document.getElementById(`${viewName}-view`);
     if (activeView) {
       activeView.classList.add('active');
-      activeView.style.display = 'block';
     }
 
-    // Settings किंवा इतर पेजवर असताना Search आणि FAB (+) बटण लपवा
+    // Settings पेजवर असताना (+) चे बटण बंद ठेवा
     const fab = document.getElementById('fab-add');
-    const searchBar = document.querySelector('.header-search');
     if (fab) {
       fab.style.display = (viewName === 'settings') ? 'none' : 'flex';
-    }
-    if (searchBar) {
-      searchBar.style.display = (viewName === 'settings') ? 'none' : 'block';
     }
 
     this.refreshCurrentView();
@@ -118,7 +105,7 @@ const App = {
         this.renderTodayView();
         break;
       case 'calendar':
-        CalendarView.render(document.getElementById('calendar-view'));
+        CalendarView.render(document.getElementById('calendar-content'));
         break;
       case 'tasks':
         this.renderTasksView();
@@ -127,7 +114,7 @@ const App = {
         this.renderCompletedView();
         break;
       case 'settings':
-        SettingsView.render(document.getElementById('settings-view'));
+        SettingsView.render(document.getElementById('settings-content'));
         break;
     }
   },
@@ -141,23 +128,16 @@ const App = {
     const categories = await Categories.getAll();
     const catMap = Object.fromEntries(categories.map(c => [c.id, c]));
 
-    // Counts for tabs
     const scheduleTasks = allTasks.filter(t => t.dueDate === todayStr && t.status === 'pending');
     const importantTasks = allTasks.filter(t => t.priority === 'high' && t.status === 'pending');
     const pendingTasks = allTasks.filter(t => t.status === 'pending' && (t.carryForwardCount && t.carryForwardCount > 0));
     const completedTasks = allTasks.filter(t => t.status === 'completed' && t.completedAt && t.completedAt.startsWith(todayStr));
 
-    const countSched = document.getElementById('tabcount-schedule');
-    const countImp = document.getElementById('tabcount-important');
-    const countPend = document.getElementById('tabcount-pending');
-    const countComp = document.getElementById('tabcount-completed');
+    document.getElementById('tabcount-schedule').textContent = scheduleTasks.length;
+    document.getElementById('tabcount-important').textContent = importantTasks.length;
+    document.getElementById('tabcount-pending').textContent = pendingTasks.length;
+    document.getElementById('tabcount-completed').textContent = completedTasks.length;
 
-    if (countSched) countSched.textContent = scheduleTasks.length;
-    if (countImp) countImp.textContent = importantTasks.length;
-    if (countPend) countPend.textContent = pendingTasks.length;
-    if (countComp) countComp.textContent = completedTasks.length;
-
-    // Filter displayed list based on active tab
     let displayTasks = [];
     if (this.todayFilter === 'schedule') displayTasks = scheduleTasks;
     else if (this.todayFilter === 'important') displayTasks = importantTasks;
@@ -165,7 +145,7 @@ const App = {
     else if (this.todayFilter === 'completed') displayTasks = completedTasks;
 
     if (displayTasks.length === 0) {
-      grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;">No tasks in this list</div>';
+      grid.innerHTML = '<div style="text-align: center; color: #718096; padding: 40px 0;">कोणतेही टास्क नाहीत. (+) वर क्लिक करून जोडा.</div>';
       return;
     }
 
@@ -173,47 +153,38 @@ const App = {
   },
 
   async renderTasksView() {
-    const container = document.getElementById('tasks-view');
+    const container = document.getElementById('tasks-content');
     const allTasks = await Tasks.getAll();
     const categories = await Categories.getAll();
     const catMap = Object.fromEntries(categories.map(c => [c.id, c]));
-
     const pending = allTasks.filter(t => t.status === 'pending');
 
     if (pending.length === 0) {
-      container.innerHTML = '<div class="empty-state">No pending tasks found. Tap + to add one!</div>';
+      container.innerHTML = '<div style="text-align: center; color: #718096; padding: 40px 0;">एकही अपूर्ण टास्क नाही.</div>';
       return;
     }
-
-    container.innerHTML = `
-      <h2 class="section-title">All Pending Tasks (${pending.length})</h2>
-      <div class="task-list">
-        ${pending.map(t => UI.renderTaskCard(t, catMap[t.categoryId])).join('')}
-      </div>
-    `;
+    container.innerHTML = pending.map(t => UI.renderTaskCard(t, catMap[t.categoryId])).join('');
   },
 
   async renderCompletedView() {
-    const container = document.getElementById('completed-view');
+    const container = document.getElementById('completed-content');
     const allTasks = await Tasks.getAll();
     const completed = allTasks.filter(t => t.status === 'completed');
 
     if (completed.length === 0) {
-      container.innerHTML = '<div class="empty-state">No completed tasks yet.</div>';
+      container.innerHTML = '<div style="text-align: center; color: #718096; padding: 40px 0;">पूर्ण झालेले टास्क येथे दिसतील.</div>';
       return;
     }
 
-    container.innerHTML = `
-      <h2 class="section-title">Completed Tasks (${completed.length})</h2>
-      <div class="task-list">
-        ${completed.map(t => `
-          <div class="completed-row" onclick="UI.showEditModal('${t.id}')">
-            <span>✓ ${Utils.escapeHtml(t.title)}</span>
-            <span class="completed-time">${t.completedAt ? Utils.formatDateDisplay(t.completedAt.split('T')[0]) : ''}</span>
-          </div>
-        `).join('')}
+    container.innerHTML = completed.map(t => `
+      <div class="task-card is-done">
+        <span style="color: #38a169; font-weight: bold; font-size: 1.2rem;">✓</span>
+        <div class="task-body">
+          <div class="task-title" style="text-decoration: line-through;">${Utils.escapeHtml(t.title)}</div>
+          <div class="task-meta">${t.completedAt ? Utils.formatDateDisplay(t.completedAt.split('T')[0]) : ''}</div>
+        </div>
       </div>
-    `;
+    `).join('');
   },
 
   async toggleTask(id) {
@@ -239,7 +210,7 @@ const App = {
     );
 
     if (filtered.length === 0) {
-      container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;">No matching tasks found</div>';
+      container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">कोणताही टास्क सापडला नाही.</div>';
       return;
     }
 
@@ -247,7 +218,7 @@ const App = {
   }
 };
 
-// Start application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
 });
+    
